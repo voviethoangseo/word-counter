@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công cụ Đếm số từ & Số ký tự</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .stat-card {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .stat-num {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        textarea:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .btn-clear {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-clear:hover {
+            background-color: #c0392b;
+        }
+        .btn-copy {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .btn-copy:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Đếm Số Từ & Số Ký Tự</h2>
+
+    <!-- Khu vực hiển thị kết quả thống kê -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-num" id="wordCount">0</div>
+            <div class="stat-label">Số từ</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" id="charCount">0</div>
+            <div class="stat-label">Ký tự (có cách)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" id="charNoSpaceCount">0</div>
+            <div class="stat-label">Ký tự (không cách)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" id="lineCount">0</div>
+            <div class="stat-label">Dòng / Đoạn</div>
+        </div>
+    </div>
+
+    <!-- Ô nhập văn bản -->
+    <div class="form-group">
+        <textarea id="textInput" placeholder="Bắt đầu nhập hoặc dán văn bản của bạn vào đây..." oninput="updateStats()"></textarea>
+    </div>
+
+    <!-- Các nút chức năng phụ -->
+    <div class="btn-group">
+        <button class="btn-copy" onclick="copyText()">Sao chép văn bản</button>
+        <button class="btn-clear" onclick="clearText()">Xóa tất cả</button>
+    </div>
+</div>
+
+<script>
+function updateStats() {
+    const text = document.getElementById('textInput').value;
+
+    // 1. Đếm số ký tự (bao gồm cả khoảng trắng)
+    const charCount = text.length;
+
+    // 2. Đếm số ký tự (không bao gồm khoảng trắng và ký tự xuống dòng)
+    const charNoSpaceCount = text.replace(/\s/g, '').length;
+
+    // 3. Đếm số từ
+    // Sử dụng Regex để tách các từ dựa trên khoảng trắng, khoảng trống liên tiếp, tab, hoặc xuống dòng
+    const words = text.trim().split(/\s+/);
+    // Nếu khung nhập rỗng thì số từ bằng 0, ngược lại thì lấy độ dài mảng từ vừa tách
+    const wordCount = text.trim() === '' ? 0 : words.length;
+
+    // 4. Đếm số dòng / đoạn văn bản
+    const lines = text.split('\n');
+    // Chỉ đếm những dòng có chứa ký tự (bỏ qua dòng trống hoàn toàn)
+    const lineCount = text.trim() === '' ? 0 : lines.filter(line => line.trim() !== '').length;
+
+    // Cập nhật giao diện
+    document.getElementById('wordCount').textContent = formatNumber(wordCount);
+    document.getElementById('charCount').textContent = formatNumber(charCount);
+    document.getElementById('charNoSpaceCount').textContent = formatNumber(charNoSpaceCount);
+    document.getElementById('lineCount').textContent = formatNumber(lineCount);
+}
+
+// Hàm hỗ trợ định dạng số (thêm dấu phẩy cho số lớn, ví dụ: 1,000)
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// Chức năng xóa văn bản
+function clearText() {
+    document.getElementById('textInput').value = '';
+    updateStats();
+}
+
+// Chức năng sao chép văn bản trong ô nhập
+function copyText() {
+    const textInput = document.getElementById('textInput');
+    if (!textInput.value) {
+        alert('Không có văn bản để sao chép!');
+        return;
+    }
+    textInput.select();
+    textInput.setSelectionRange(0, 99999);
+    
+    navigator.clipboard.writeText(textInput.value)
+        .then(() => {
+            alert('Đã sao chép văn bản vào bộ nhớ tạm!');
+        })
+        .catch(err => {
+            alert('Lỗi sao chép: ' + err);
+        });
+}
+</script>
+
+</body>
+</html>
