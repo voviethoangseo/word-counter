@@ -26,3 +26,5 @@ All operations run entirely in your web browser. No text data is transmitted, co
 1. Clone or download this repository:
    ```bash
    git clone https://github.com/voviethoangseo/word-counter.git
+2. Open word_counter_en.html directly in any web browser (Chrome, Firefox, Edge, Safari).
+3. Type or paste your content into the text area to view statistics instantly.
